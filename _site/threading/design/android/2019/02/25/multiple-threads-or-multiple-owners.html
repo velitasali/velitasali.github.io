@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Multiple Threads or Multiple Owners?</title>
+  <meta name="description" content="And again I am at the point where something works, but kinda. On TrebleShot’s Adding more devices to a transfer,everything works as long as user does not cha...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="/threading/design/android/2019/02/25/multiple-threads-or-multiple-owners.html">
+  <link rel="alternate" type="application/rss+xml" title="" href="/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/"></a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Multiple Threads or Multiple Owners?</h1>
+    <p class="post-meta"><time datetime="2019-02-25T10:00:00+03:00" itemprop="datePublished">Feb 25, 2019</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>And again I am at the point where something works, but kinda. On TrebleShot’s <em>Adding more devices to a transfer</em>,
+everything works as long as user does not change the language, or the orientation in short recreate it, or leave
+the app leaving it to the hands of LMK (Low Memory Killer). When that happens the activity that has started the thread simply loses its instance causing a new thread to spawn and the other thread to die. Other thread dies because we will not know where will it be or it will belong to us if we don’t kill it.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span>
+<span class="o">{</span>
+    <span class="kd">super</span><span class="o">.</span><span class="na">onDestroy</span><span class="o">();</span>
+    <span class="n">getDefaultInterrupter</span><span class="o">().</span><span class="na">interrupt</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">getDefaultInterrupter()</code> returns the class level instance of the <code class="highlighter-rouge">Interrupter</code> object that notifies threads to seize actions. It is a good way to handle multiple threads. It supports something called <em>Closers</em>. It is a class that does action when the <code class="highlighter-rouge">interrupt()</code> is called. I used this method throughout TrebleShot.</p>
+
+<h1 id="show-the-right-activity-but-how">Show the right activity, but how?</h1>
+<p>What I want to achieve is that when user leaves the app and clicks the notification that they can still see what they left off. It is important for consistency. Another way is loop all the tasks as it is their turn for instance</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Task</span> <span class="kd">extends</span> <span class="n">RemoteTask</span>
+<span class="o">{</span>   
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">mPosition</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span>
+    <span class="o">{</span>
+        <span class="c1">//todo: task</span>
+        <span class="n">mPosition</span><span class="o">++;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>So every task can be called one by one and all the tasks can run on the same thread. Of course, that is when a task can
+detach itself in time, which means not doing recursive tasks and remembering the stage it was at. So, I did not like this and the idea that reorganizing the current methods (a lot of trouble if not done carefully).</p>
+
+<h1 id="remembering-who-was-who">Remembering who was who</h1>
+<p>When a task is started, since they are mostly done by activity which has a certain <code class="highlighter-rouge">android.content.Intent</code> that started them then, comparing elements of them looked like a sane idea.</p>
+
+<p>Before starting, the task give them the intent that started the activity so by putting that <code class="highlighter-rouge">Intent</code> into a <code class="highlighter-rouge">PendingIntent</code>
+we can start the same instance of that activity. And, we can even reattach the task when it happens.</p>
+
+<p>So to do that I created <code class="highlighter-rouge">intentHash()</code> which returns a string hash for an <code class="highlighter-rouge">Intent</code>. The method looks like this;</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">intentHash</span><span class="o">(</span><span class="nd">@NonNull</span> <span class="n">Intent</span> <span class="n">intent</span><span class="o">)</span>
+<span class="o">{</span>
+    <span class="n">StringBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringBuilder</span><span class="o">();</span>
+
+    <span class="n">builder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">intent</span><span class="o">.</span><span class="na">getComponent</span><span class="o">());</span>
+    <span class="n">builder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">intent</span><span class="o">.</span><span class="na">getData</span><span class="o">());</span>
+    <span class="n">builder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">intent</span><span class="o">.</span><span class="na">getPackage</span><span class="o">());</span>
+    <span class="n">builder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">intent</span><span class="o">.</span><span class="na">getAction</span><span class="o">());</span>
+    <span class="n">builder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">intent</span><span class="o">.</span><span class="na">getFlags</span><span class="o">());</span>
+    <span class="n">builder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">intent</span><span class="o">.</span><span class="na">getType</span><span class="o">());</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">intent</span><span class="o">.</span><span class="na">getExtras</span><span class="o">()</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="n">builder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">intent</span><span class="o">.</span><span class="na">getExtras</span><span class="o">().</span><span class="na">toString</span><span class="o">());</span>
+
+    <span class="k">return</span> <span class="n">builder</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">hashCode</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>So <code class="highlighter-rouge">RunningTask</code> class holds a hash code and a pending intent. We have everything ready and it is time to reattach the task. Not quite so! What if I want to show a progress bar and a button and a bunch of other informative widgets that benefits from this. They should be updated by the <code class="highlighter-rouge">RunningTask</code> and they should definitely not crash the app when the activity dies. So to that I added something simple called <em>Anchors</em>.</p>
+
+<p>Anchors come and go and they are definitely not reliable. That is they may exist at times, but mostly they do not. This means that whenever a task is attached to an activity, the activity attaches a listener (mostly itself) and by using templates, the <code class="highlighter-rouge">RunningTask</code> can always know what it will have if it can have it.</p>
+
+<p>So that is why the definition of the RunningTask is;</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">RunningTask</span><span class="o">&lt;</span><span class="n">T</span> <span class="kd">extends</span> <span class="n">OnAttachListener</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="n">InterruptAwareJob</span>
+<span class="o">{</span>
+ <span class="c1">// ...</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>And the <code class="highlighter-rouge">OnAttachListener</code> is;</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">OnAttachListener</span>
+<span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">onAttachedToTask</span><span class="o">(</span><span class="n">RunningTask</span> <span class="n">task</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>And finally on the activity I call <code class="highlighter-rouge">WorkerService.findTaskByHash()</code> which returns tasks when there is any.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">synchronized</span> <span class="n">RunningTask</span> <span class="nf">findTaskByHash</span><span class="o">(</span><span class="kt">int</span> <span class="n">hashCode</span><span class="o">)</span>
+<span class="o">{</span>
+    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">getTaskList</span><span class="o">())</span> <span class="o">{</span>
+       <span class="k">for</span> <span class="o">(</span><span class="n">RunningTask</span> <span class="n">runningTask</span> <span class="o">:</span> <span class="n">getTaskList</span><span class="o">())</span>
+           <span class="k">if</span> <span class="o">(</span><span class="n">runningTask</span><span class="o">.</span><span class="na">hashCode</span><span class="o">()</span> <span class="o">==</span> <span class="n">hashCode</span><span class="o">)</span>
+               <span class="k">return</span> <span class="n">runningTask</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading"></h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list
+          <li><a href="mailto:"></a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p></p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

@@ -15,4 +15,4 @@ in the decision making process.
 Reach me if this post interests you in a way we can discuss your thoughts.
 <br />
 <br />
-Sincerely
+Sincerely.
