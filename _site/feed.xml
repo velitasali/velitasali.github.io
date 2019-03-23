@@ -1,21 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title></title>
-    <description></description>
-    <link>/</link>
-    <atom:link href="/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 13 Mar 2019 16:54:41 +0300</pubDate>
-    <lastBuildDate>Wed, 13 Mar 2019 16:54:41 +0300</lastBuildDate>
+    <title>veli++</title>
+    <description>A weapon as powerful as a towel
+</description>
+    <link>http://velitasali.github.io/</link>
+    <atom:link href="http://velitasali.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sat, 23 Mar 2019 16:17:02 +0300</pubDate>
+    <lastBuildDate>Sat, 23 Mar 2019 16:17:02 +0300</lastBuildDate>
     <generator>Jekyll v3.1.6</generator>
     
       <item>
-        <title>I have a dream</title>
-        <description>
+        <title>Readability with Scopes</title>
+        <description>&lt;p&gt;Most programmers do think that their style of coding is superior when they develop small projects and they sometimes find themselves staring at the code that they wrote earlier, admiring the way it looks and works until they find out that it is not simply the best nor the most readable one. Readability is an important part of software development and it becomes more important as the number of people involving grows. Even at times the developer who wrote the code may not recognize or understand. This is either because he already has changed the way architects his software or because he/she is a messy programmer. Well, there are ways to improve the kind of situations by simply adopting some traits. Commenting, documenting aside, there are the ones that changes the way the code is read like wrapping, spacing etc. I will not talk about them. I will talk about what I call &lt;code class=&quot;highlighter-rouge&quot;&gt;scoping&lt;/code&gt;. I can’t really say this is the best way referring to it, but when you are done reading this post, hopefully you will understand. I discovered this one year ago and I consider it one of the most helpful way of stating the way your software works. I have never seen or heard someone mentioning them in software development, and probably you haven’t either. So let’s go.&lt;/p&gt;
+
+&lt;p&gt;You know when you have a &lt;code class=&quot;highlighter-rouge&quot;&gt;if&lt;/code&gt; condition with multiple lines of code and working with Java or C++, you use braces that is &lt;code class=&quot;highlighter-rouge&quot;&gt;{&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;}&lt;/code&gt; to tell program where it should do tricky task and where it should end it. What if I tell you, braces can always be used even though they do not have any keyword before them like &lt;code class=&quot;highlighter-rouge&quot;&gt;do&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;while&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;try&lt;/code&gt; etc. And using them certainly have an effect with a powerful IDE, and mostly a language like C++.&lt;/p&gt;
+
+&lt;p&gt;Look here where I connect to server. This is a client that should connect two separate servers to do its tasks.&lt;/p&gt;
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;auto&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;activeConnection&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;client&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;communicate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;device&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;connection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;delete&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;activeConnection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;auto&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;activeConnection&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;client&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;communicate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;device&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;connection2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;delete&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;activeConnection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(...)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;//todo: catch errors
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;As you can see, there two different pointers with the same name, but neither compiler nor you powerful IDE will confuse them because they are in different scope. This code throws an exception when any of the two connections fails, so nothing breaks the code.&lt;/p&gt;
+
+&lt;p&gt;You may say “why would I need this?” Simple! This will save you from using a lot of variables mistakenly and when you use temporary objects, they will be cleaned when they are created in these headless braces.&lt;/p&gt;
+
+&lt;p&gt;Like this;&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;#include &amp;lt;iostream&amp;gt;
+&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TmpObject&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;~&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TmpObject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;TmpObject deleted&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;argc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;char&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argv&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[])&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;TmpObject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;  
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Main scope&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The output is;&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TmpObject deleted
+Main scope
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;If we didn’t call &lt;code class=&quot;highlighter-rouge&quot;&gt;TmpObject();&lt;/code&gt; in those headless braces the first output for this program would be &lt;code class=&quot;highlighter-rouge&quot;&gt;Main scope&lt;/code&gt; and then &lt;code class=&quot;highlighter-rouge&quot;&gt;TmpObject deleted&lt;/code&gt; which means &lt;code class=&quot;highlighter-rouge&quot;&gt;TmpObject&lt;/code&gt; is deleted after the function exits. However, in the example above, we get rid of not used objects faster and clean mess earlier.&lt;/p&gt;
+
+&lt;p&gt;For me, using this was a time saver, since in a server-client structure, there are too many variables to handle and it is hard to remember what they are used for.&lt;/p&gt;
+
+&lt;p&gt;Check &lt;a href=&quot;https://github.com/genonbeta/TrebleShot-Desktop/blob/84902b3d889b85c9d45439e58b6c78d108f9a603/src/broadcast/SeamlessClient.cpp#L125&quot;&gt;SeamlessClient&lt;/a&gt; and
+&lt;a href=&quot;https://github.com/genonbeta/TrebleShot/blob/55175f432fd5df6eee7d9b1c3ced4efc84927aed/app/src/main/java/com/genonbeta/TrebleShot/service/CommunicationService.java#L988&quot;&gt;SeamlessServer&lt;/a&gt; out. One is C++ and the other is Java and they work together.&lt;/p&gt;
 </description>
-        <pubDate>Wed, 13 Mar 2019 10:00:00 +0300</pubDate>
-        <link>/idea/2019/03/13/i-have_dream.html</link>
-        <guid isPermaLink="true">/idea/2019/03/13/i-have_dream.html</guid>
+        <pubDate>Sat, 23 Mar 2019 10:00:00 +0300</pubDate>
+        <link>http://velitasali.github.io/coding-style/2019/03/23/readability-with-psuedo-scopes.html</link>
+        <guid isPermaLink="true">http://velitasali.github.io/coding-style/2019/03/23/readability-with-psuedo-scopes.html</guid>
+        
+        
+        <category>coding-style</category>
+        
+      </item>
+    
+      <item>
+        <title>An Uninformed Design Choice</title>
+        <description>&lt;p&gt;The most discouraging part of the software development is that not knowing that there is already the wheel that you are inventing. However if you can justify your wheel with some features that no other wheel has then maybe there is hope. Yet sometimes the very feature you are building your wheel upon can easily be done with some tools that already existed before you and does the task well while going with your implementation requires some informed choices like sustainability or usability or dependability.&lt;/p&gt;
+
+&lt;p&gt;My stance on this was simply to write an entire TCP server and its client both on Java and C++ with Qt5 framework. It is, of course, easy to use and for the source belongs to me, I do any change that eases the development process. Multiple tasks can be carried out simultaneously and so on. And it is always easy to write this than use somebody else’s base. Still though the server did never do the byte transferring task and the child tasks depend on the parent task to maintain the connection and their preparation. To start a receive process, the receiver has to inform the sender than the safe-checks gets done and finally the transfer begins. Yet there was always a better technology that could the tasks with more sophisticated manner and more error-proof way. That is torrenting, of course. At the time of writing and I have a bit of knowledge that helps me understand why it would be a better choice. For instance, it is UDP not TCP meaning that it does not active and packets are subject to get lost, still the task is always safe since once the packet arrives there is nothing important. Packet loss would be bad for voice communication, but this is not it. File transfer is something else. The result is the important phase not the progress. It could also help ease transfers among different devices.&lt;/p&gt;
+
+&lt;p&gt;With that said, I am now into writing a torrent based file sharer. It would not even need per platform compatibility.  It is always good to do some research before starting a project.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 17 Mar 2019 10:00:00 +0300</pubDate>
+        <link>http://velitasali.github.io/idea/2019/03/17/uninformed-design-choice.html</link>
+        <guid isPermaLink="true">http://velitasali.github.io/idea/2019/03/17/uninformed-design-choice.html</guid>
         
         
         <category>idea</category>
@@ -118,8 +191,8 @@ we can start the same instance of that activity. And, we can even reattach the t
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 </description>
         <pubDate>Mon, 25 Feb 2019 10:00:00 +0300</pubDate>
-        <link>/threading/design/android/2019/02/25/multiple-threads-or-multiple-owners.html</link>
-        <guid isPermaLink="true">/threading/design/android/2019/02/25/multiple-threads-or-multiple-owners.html</guid>
+        <link>http://velitasali.github.io/threading/design/android/2019/02/25/multiple-threads-or-multiple-owners.html</link>
+        <guid isPermaLink="true">http://velitasali.github.io/threading/design/android/2019/02/25/multiple-threads-or-multiple-owners.html</guid>
         
         
         <category>threading</category>
@@ -153,8 +226,8 @@ the popularity of the software will help to decide whether the software should b
 Qt, it will be my first choice (And I am using Ubuntu 18.10 so it also puts some weight).&lt;/p&gt;
 </description>
         <pubDate>Mon, 04 Feb 2019 18:00:00 +0300</pubDate>
-        <link>/idea/2019/02/04/project-focus.html</link>
-        <guid isPermaLink="true">/idea/2019/02/04/project-focus.html</guid>
+        <link>http://velitasali.github.io/idea/2019/02/04/project-focus.html</link>
+        <guid isPermaLink="true">http://velitasali.github.io/idea/2019/02/04/project-focus.html</guid>
         
         
         <category>idea</category>
@@ -220,8 +293,8 @@ Randomness is the conditions that could be judged with our knowledge. For exampl
 I think these are the essential parts of the development of an AI. We can simply call it “providing a reasoning mechanism”.&lt;/p&gt;
 </description>
         <pubDate>Sun, 03 Feb 2019 18:00:00 +0300</pubDate>
-        <link>/opinion/2019/02/03/understanding-aritificial-intelligence.html</link>
-        <guid isPermaLink="true">/opinion/2019/02/03/understanding-aritificial-intelligence.html</guid>
+        <link>http://velitasali.github.io/opinion/2019/02/03/understanding-aritificial-intelligence.html</link>
+        <guid isPermaLink="true">http://velitasali.github.io/opinion/2019/02/03/understanding-aritificial-intelligence.html</guid>
         
         
         <category>opinion</category>

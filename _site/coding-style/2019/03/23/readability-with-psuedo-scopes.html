@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Readability with Scopes</title>
+  <meta name="description" content="Most programmers do think that their style of coding is superior when they develop small projects and they sometimes find themselves staring at the code that...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://velitasali.github.io/coding-style/2019/03/23/readability-with-psuedo-scopes.html">
+  <link rel="alternate" type="application/rss+xml" title="veli++" href="http://velitasali.github.io/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">veli++</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Readability with Scopes</h1>
+    <p class="post-meta"><time datetime="2019-03-23T10:00:00+03:00" itemprop="datePublished">Mar 23, 2019</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Most programmers do think that their style of coding is superior when they develop small projects and they sometimes find themselves staring at the code that they wrote earlier, admiring the way it looks and works until they find out that it is not simply the best nor the most readable one. Readability is an important part of software development and it becomes more important as the number of people involving grows. Even at times the developer who wrote the code may not recognize or understand. This is either because he already has changed the way architects his software or because he/she is a messy programmer. Well, there are ways to improve the kind of situations by simply adopting some traits. Commenting, documenting aside, there are the ones that changes the way the code is read like wrapping, spacing etc. I will not talk about them. I will talk about what I call <code class="highlighter-rouge">scoping</code>. I can’t really say this is the best way referring to it, but when you are done reading this post, hopefully you will understand. I discovered this one year ago and I consider it one of the most helpful way of stating the way your software works. I have never seen or heard someone mentioning them in software development, and probably you haven’t either. So let’s go.</p>
+
+<p>You know when you have a <code class="highlighter-rouge">if</code> condition with multiple lines of code and working with Java or C++, you use braces that is <code class="highlighter-rouge">{</code> <code class="highlighter-rouge">}</code> to tell program where it should do tricky task and where it should end it. What if I tell you, braces can always be used even though they do not have any keyword before them like <code class="highlighter-rouge">do</code>, <code class="highlighter-rouge">while</code>, <code class="highlighter-rouge">try</code> etc. And using them certainly have an effect with a powerful IDE, and mostly a language like C++.</p>
+
+<p>Look here where I connect to server. This is a client that should connect two separate servers to do its tasks.</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">try</span> <span class="p">{</span>
+  <span class="p">{</span>
+    <span class="k">auto</span> <span class="o">*</span> <span class="n">activeConnection</span> <span class="o">=</span> <span class="n">client</span><span class="o">-&gt;</span><span class="n">communicate</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">connection</span><span class="p">);</span>
+    <span class="k">delete</span> <span class="n">activeConnection</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="p">{</span>
+    <span class="k">auto</span> <span class="o">*</span> <span class="n">activeConnection</span> <span class="o">=</span> <span class="n">client</span><span class="o">-&gt;</span><span class="n">communicate</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">connection2</span><span class="p">);</span>
+    <span class="k">delete</span> <span class="n">activeConnection</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span> <span class="k">catch</span><span class="p">(...)</span> <span class="p">{</span>
+  <span class="c1">//todo: catch errors
+</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p>As you can see, there two different pointers with the same name, but neither compiler nor you powerful IDE will confuse them because they are in different scope. This code throws an exception when any of the two connections fails, so nothing breaks the code.</p>
+
+<p>You may say “why would I need this?” Simple! This will save you from using a lot of variables mistakenly and when you use temporary objects, they will be cleaned when they are created in these headless braces.</p>
+
+<p>Like this;</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;iostream&gt;
+</span>
+<span class="k">class</span> <span class="nc">TmpObject</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+  <span class="o">~</span><span class="n">TmpObject</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"TmpObject deleted"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+  <span class="p">{</span>
+    <span class="n">TmpObject</span><span class="p">();</span>  
+  <span class="p">}</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Main scope"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The output is;</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TmpObject deleted
+Main scope
+</code></pre></div></div>
+
+<p>If we didn’t call <code class="highlighter-rouge">TmpObject();</code> in those headless braces the first output for this program would be <code class="highlighter-rouge">Main scope</code> and then <code class="highlighter-rouge">TmpObject deleted</code> which means <code class="highlighter-rouge">TmpObject</code> is deleted after the function exits. However, in the example above, we get rid of not used objects faster and clean mess earlier.</p>
+
+<p>For me, using this was a time saver, since in a server-client structure, there are too many variables to handle and it is hard to remember what they are used for.</p>
+
+<p>Check <a href="https://github.com/genonbeta/TrebleShot-Desktop/blob/84902b3d889b85c9d45439e58b6c78d108f9a603/src/broadcast/SeamlessClient.cpp#L125">SeamlessClient</a> and
+<a href="https://github.com/genonbeta/TrebleShot/blob/55175f432fd5df6eee7d9b1c3ced4efc84927aed/app/src/main/java/com/genonbeta/TrebleShot/service/CommunicationService.java#L988">SeamlessServer</a> out. One is C++ and the other is Java and they work together.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">veli tasalı</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list
+          <li><a href="mailto:velitasali@protonmail.com">velitasali@protonmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/velitasali"><span class="icon icon--github"><svg viewBox="0 0 16 16"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">velitasali</span></a>
+
+          </li>
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>A weapon as powerful as a towel
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
